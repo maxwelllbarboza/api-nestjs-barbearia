@@ -5,6 +5,11 @@ import { CreateExpertsDto } from './dtos/create-experts'
 @Injectable()
 export class ExpertsService {
 	constructor(private readonly prisma: PrismaService) {}
+
+	async findAllExperts() {
+		return await this.prisma.expert.findMany()
+	}
+
 	async findExpertByEmail(email: string) {
 		return await this.prisma.expert.findFirst({
 			where: {
