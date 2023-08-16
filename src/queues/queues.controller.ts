@@ -1,4 +1,12 @@
-import { Controller, Body, Post, Res, NotFoundException } from '@nestjs/common'
+import {
+	Controller,
+	Body,
+	Post,
+	Res,
+	NotFoundException,
+	Get,
+	Query
+} from '@nestjs/common'
 import { QueuesService } from './queues.service'
 import CreateQueueDto from './dtos/create-queue'
 import { Response } from 'express'
@@ -33,5 +41,25 @@ export class QueuesController {
 
 		const queue = await this.queuesService.createQueue(data)
 		return res.status(HttpStatus.CREATED).json(queue)
+	}
+
+	@Get()
+	async getExpertQueue(
+		@Query('expertId') expertId: string,
+		@Res() res: Response
+	) {
+		if (expertId) {
+			const expert = await this.expertService.findExpert(expertId)
+
+			if (!expert) {
+				throw new NotFoundException('O expert não existe.')
+			}
+
+			const queue = await this.queuesService.getExpertQueue(expertId)
+			return res.json(queue)
+		}
+
+		const queue = await this.queuesService.getQueues()
+		return res.json(queue)
 	}
 }
