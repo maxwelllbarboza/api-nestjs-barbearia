@@ -1,8 +1,18 @@
-import { Controller, Post, Body, Res, HttpStatus, Get } from '@nestjs/common'
+import {
+	Controller,
+	Post,
+	Body,
+	Res,
+	HttpStatus,
+	Get,
+	Param,
+	Patch
+} from '@nestjs/common'
 import { BadRequestException } from '@nestjs/common/exceptions'
 import { ExpertsService } from './experts.service'
 import { CreateExpertsDto } from './dtos/create-experts'
 import { Response } from 'express'
+import { UpdateExpertsDto } from './dtos/update-experts'
 
 @Controller('experts')
 export class ExpertsController {
@@ -26,5 +36,42 @@ export class ExpertsController {
 	async getExperts(@Res() res: Response) {
 		const experts = await this.expertsService.findAllExperts()
 		return res.json(experts)
+	}
+
+	@Get(':id')
+	async getExpert(@Param('id') id: string, @Res() res: Response) {
+		const expertLocalizado = await this.expertsService.findExpert(id)
+
+		if (!expertLocalizado) {
+			throw new BadRequestException('O profissional não existe.')
+		}
+		return res.status(HttpStatus.CREATED).json(expertLocalizado)
+	}
+
+	@Patch(':id')
+	async updateExpert(
+		@Param('id') id: string,
+		@Body() data: UpdateExpertsDto,
+		@Res() res: Response
+	) {
+		const expert = await this.expertsService.findExpert(id)
+
+		if (!expert) {
+			throw new BadRequestException('O profissional não existe.')
+		}
+
+		if (data.email) {
+			const emailExists = await this.expertsService.findExpertByEmail(
+				data.email
+			)
+
+			if (emailExists && emailExists.email !== expert.email) {
+				throw new BadRequestException(
+					'Já existe um profissional com o email informado.'
+				)
+			}
+		}
+		await this.expertsService.updateExpert(id, { ...expert, ...data })
+		return res.status(HttpStatus.NO_CONTENT).send()
 	}
 }
