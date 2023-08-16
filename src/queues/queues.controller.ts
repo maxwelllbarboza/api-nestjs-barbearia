@@ -62,4 +62,10 @@ export class QueuesController {
 		const queue = await this.queuesService.getQueues()
 		return res.json(queue)
 	}
+
+	@Get('today')
+	async getQueuesToday(@Res() res: Response) {
+		const queues = await this.queuesService.getQueuesToday()
+		return res.json(queues)
+	}
 }
