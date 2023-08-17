@@ -7,11 +7,13 @@ import {
 	Res,
 	Param,
 	NotFoundException,
-	HttpStatus
+	HttpStatus,
+	UseGuards
 } from '@nestjs/common'
 import CreateQueuecustomersDto from './dtos/queue-customers'
 import { QueuecustomersService } from './queue-customers.service'
 import { Response } from 'express'
+import { JwtAuthGuard } from 'src/auth/guards/jwt-guard'
 
 @Controller('queuecustomers')
 export class QueueCustomersController {
@@ -39,6 +41,7 @@ export class QueueCustomersController {
 		return res.status(HttpStatus.CREATED).json(customer)
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Patch(':id')
 	async attendCustomer(@Param('id') id: string, @Res() res: Response) {
 		const customer = await this.queueCustomersService.findCustomer(+id)
@@ -51,6 +54,7 @@ export class QueueCustomersController {
 		return res.status(HttpStatus.NO_CONTENT).send()
 	}
 
+	@UseGuards(JwtAuthGuard)
 	@Delete(':id')
 	async deleteCustomer(@Param('id') id: string, @Res() res: Response) {
 		const customer = await this.queueCustomersService.findCustomer(+id)

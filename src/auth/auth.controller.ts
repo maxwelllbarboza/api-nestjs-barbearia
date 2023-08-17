@@ -4,11 +4,13 @@ import {
 	Post,
 	Req,
 	Res,
-	UseGuards
+	UseGuards,
+	Get
 } from '@nestjs/common'
 import { Request, Response } from 'express'
 import LocalAuthGuard from './guards/local-guards'
 import { AuthService } from './auth.service'
+import { JwtAuthGuard } from './guards/jwt-guard'
 
 @Controller()
 export class AuthController {
@@ -20,5 +22,13 @@ export class AuthController {
 		const { user } = req
 		const token = await this.authService.login(user)
 		return res.status(HttpStatus.OK).json({ user, token: token.access_token })
+	}
+
+	@UseGuards(JwtAuthGuard)
+	@Get('profile')
+	async getProfile(@Req() req: Request, @Res() res: Response) {
+		const { user } = req
+
+		return res.json(user)
 	}
 }
